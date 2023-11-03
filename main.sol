@@ -96,3 +96,17 @@ contract companyReg{
     }
 
 }
+
+contract vaccineReg{
+
+    companyReg public contractA;
+
+    constructor() {
+        contractA = new companyReg();
+    }
+
+    function checkAvailability(string memory _name) public view returns(bool)
+    {
+        return contractA.checkRegCompany(_name);
+    }
+}
