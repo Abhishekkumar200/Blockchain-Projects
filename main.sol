@@ -39,7 +39,7 @@ contract companyReg{
         company memory newCompany = setRating(_name, _qControl, _MFacility, _ReguCompliance);
 
         if (registeredCompany[_name].registered) {
-            return status = "Company already registered.";
+            return status = string.concat(_name, " already registered.");
         }
         else 
         {
@@ -49,7 +49,7 @@ contract companyReg{
             newCompany.registered = true;
             newCompany.UA = truncatedHash;
             registeredCompany[_name] = newCompany;
-            return status = "Company registered successfully.";
+            return status = string.concat(_name, " registered successfully.");
         }
     }
 
@@ -99,14 +99,55 @@ contract companyReg{
 
 contract vaccineReg{
 
-    companyReg public contractA;
+    companyReg private companyreg;
+    mapping(string=>string[]) private vaccineData;
+    mapping(string=>string[]) private distData;
+    mapping(string=>string[]) private pharmacyData;
 
-    constructor() {
-        contractA = new companyReg();
+    constructor(address _contract1) {
+        companyreg = companyReg(_contract1);
     }
 
-    function checkAvailability(string memory _name) public view returns(bool)
+    function checkCompany(string memory _name) public view returns(bool)
     {
-        return contractA.checkRegCompany(_name);
+        return companyreg.checkRegCompany(_name);
     }
+
+    function vacApplication(string memory _company, string memory _vaccine, uint8 _standard) public returns(string memory)
+    {
+        require(checkCompany(_company), string.concat(_company, " is not registered."));
+        require(_standard>5, string.concat(_company, "'s Vaccine standard is low."));
+        vaccineData[_vaccine].push(_company);
+        return string.concat(_vaccine, " registered successfully.");   
+    }
+
+    function vaccineDistribution (string memory _company, string memory _distributor, string memory _pharmacy) public returns(bool)
+    {
+        distData[_company].push(_distributor);
+        pharmacyData[_company].push(_pharmacy);
+        return true;
+    }
+}
+
+contract getVaccineData{
+
+    vaccineReg private vaccinereg;
+
+    constructor(address _contract2)
+    {
+        vaccinereg = vaccineReg(_contract2);
+    }
+
+    struct vaccine{
+        string name;
+        bool approved;
+        string manufacturing_Date;
+        string expiry_Date;
+        string comapny;
+        string distributor;
+        string pharmacy;
+    }
+
+    mapping(string=>vaccine) private vaccineData;
+
 }
