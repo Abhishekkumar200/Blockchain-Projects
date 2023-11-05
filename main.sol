@@ -39,7 +39,7 @@ contract companyReg{
         company memory newCompany = setRating(_name, _qControl, _MFacility, _ReguCompliance);
 
         if (registeredCompany[_name].registered) {
-            return status = "Company already registered.";
+            return status = string.concat(_name, " already registered.");
         }
         else 
         {
@@ -49,7 +49,7 @@ contract companyReg{
             newCompany.registered = true;
             newCompany.UA = truncatedHash;
             registeredCompany[_name] = newCompany;
-            return status = "Company registered successfully.";
+            return status = string.concat(_name, " registered successfully.");
         }
     }
 
@@ -93,6 +93,92 @@ contract companyReg{
         }
  
         return string(buffer);
+    }
+
+}
+
+contract vaccineReg{
+
+    companyReg private companyreg;
+    mapping(string=>string[]) public vaccineData;
+    mapping(string=>string[]) public distData;
+    mapping(string=>string[]) public pharmacyData;
+
+    constructor(address _contract1) {
+        companyreg = companyReg(_contract1);
+    }
+
+    function checkCompany(string memory _name) public view returns(bool)
+    {
+        return companyreg.checkRegCompany(_name);
+    }
+
+    function vacApplication(string memory _company, string memory _vaccine, uint8 _standard) public returns(string memory)
+    {
+        require(checkCompany(_company), string.concat(_company, " is not registered."));
+        require(_standard>5, string.concat(_company, "'s Vaccine standard is low."));
+        vaccineData[_vaccine].push(_company);
+        return string.concat(_vaccine, " registered successfully.");   
+    }
+
+    function vaccineDistribution (string memory _vaccine, string memory _distributor, string memory _pharmacy) public returns(bool)
+    {
+        distData[_vaccine].push(_distributor);
+        pharmacyData[_vaccine].push(_pharmacy);
+        return true;
+    }
+
+    function vaccineStatus(string memory _vaccine) public view returns(bool)
+    {
+        if(vaccineData[_vaccine].length>0)
+        {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    function getDetails(string memory _vaccine) public view returns(string memory, string memory, string memory){
+        return (vaccineData[_vaccine][0], distData[_vaccine][0], pharmacyData[_vaccine][0]);
+    }
+}
+
+contract getVaccineData{
+
+    vaccineReg private vaccinereg;
+
+    constructor(address _contract2)
+    {
+        vaccinereg = vaccineReg(_contract2);
+    }
+
+    struct vaccine{
+        string name;
+        bool approved;
+        string manufacturing_Date;
+        string expiry_Date;
+        string company;
+        string distributor;
+        string pharmacy;
+    }
+
+    // mapping(string=>vaccine) private vaccineData;
+
+    function getVaccineDetails(string memory _vaccine) public view returns(vaccine memory)
+    {
+        require(vaccinereg.vaccineStatus(_vaccine), string.concat(_vaccine, " is not available;"));
+        (string memory result1, string memory result2, string memory result3) = vaccinereg.getDetails(_vaccine);
+        vaccine memory newVaccine = vaccine({
+            name: _vaccine,
+            approved: true,
+            manufacturing_Date: "05/11/2023",
+            expiry_Date: "05/11/2024",
+            company: result1,
+            distributor: result2,
+            pharmacy: result3
+        });
+        return newVaccine;
     }
 
 }
