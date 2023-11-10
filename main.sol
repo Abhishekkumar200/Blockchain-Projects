@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-//BioNTech, Sinovac, Moderna, GSK, Sanofi, AstraZeneca, Bavarian Nordic
+//Vaccine Manufacturers - BioNTech, Sinovac, Moderna, GSK, Sanofi, AstraZeneca, Bavarian Nordic
 pragma solidity ^0.8.18;
 
 
